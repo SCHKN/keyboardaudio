@@ -3,6 +3,7 @@ import { Label, Item, Segment } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { fetchSDK } from "./../redux/sdk/sdkReducer";
 import RazerSDKStatus from "./RazerSDKStatus";
+import RazerSDKHeartbeat from "./RazerSDKHeartbeat";
 
 class RazerSDKInfo extends Component {
   componentWillMount() {
@@ -13,7 +14,7 @@ class RazerSDKInfo extends Component {
   render() {
     const { sdk } = this.props;
     return (
-      <Segment.Group>
+      <Segment.Group size="small">
         <Segment>
           <Item.Group>
             <Item>
@@ -39,7 +40,12 @@ class RazerSDKInfo extends Component {
             </Item>
           </Item.Group>
         </Segment>
-        <RazerSDKStatus sdk={sdk}/>
+        <Segment clearing>
+          <Label horizontal>Local Session</Label>
+          {sdk.uri}
+          <RazerSDKHeartbeat tick={sdk.tick} />
+        </Segment>
+        <RazerSDKStatus sdk={sdk} />
       </Segment.Group>
     );
   }

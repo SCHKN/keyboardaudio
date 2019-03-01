@@ -1,15 +1,39 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Container, Grid, Divider, Button } from "semantic-ui-react";
+import { Container, Grid, Segment } from "semantic-ui-react";
 import RazerSDKInfo from "./chroma/RazerSDKInfo";
+import AudioAnalyser from "./AudioAnalyser";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       sessionid: "",
-      uri: ""
+      uri: "",
+      audio: null
     };
+    this.toggleMicrophone = this.toggleMicrophone.bind(this);
+  }
+
+  async getMicrophone() {
+    const audio = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    });
+    this.setState({ audio });
+  }
+
+  stopMicrophone() {
+    this.state.audio.getTracks().forEach(track => track.stop());
+    this.setState({ audio: null });
+  }
+
+  toggleMicrophone() {
+    if (this.state.audio) {
+      this.stopMicrophone();
+    } else {
+      this.getMicrophone();
+    }
   }
 
   getBlue() {
@@ -272,6 +296,7 @@ class App extends Component {
   }
 
   getRed() {
+    console.log(`${this.state.uri}/keyboard`);
     axios
       .put(`${this.state.uri}/keyboard`, {
         effect: "CHROMA_CUSTOM",
@@ -463,12 +488,29 @@ class App extends Component {
     //   });
   }
 
+  // startSong() {
+  //   let res;
+  //   var requestUrl = "https://www.youtube.com/watch?v=BpHSm0KcW7o";
+  //   stream(requestUrl).pipe(res);
+  // }
+
+  log(data) {
+    console.log(data);
+  }
+
   render() {
     return (
       <div className="App">
+        {/* <div className="controls">
+          <button onClick={this.toggleMicrophone}>
+            {this.state.audio ? "Stop microphone" : "Get microphone input"}
+          </button>
+        </div>
+        {this.state.audio ? <AudioAnalyser audio={this.state.audio} /> : ""} */}
         <Container>
+          {/* <Button onClick={() => this.startSong()}>Start Song</Button> */}
           <Grid className="main-grid">
-            <Grid.Column width={8}>
+            <Grid.Column width={6}>
               <RazerSDKInfo />
             </Grid.Column>
             <Grid.Column width={8} />

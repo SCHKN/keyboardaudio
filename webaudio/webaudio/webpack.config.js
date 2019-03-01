@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+var webpack = require("webpack");
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: "./public/index.html",
@@ -6,9 +7,13 @@ const htmlPlugin = new HtmlWebPackPlugin({
 });
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: ["babel-polyfill", "./src/index.js"],
   module: {
     rules: [
+      {
+        test: /node_modules/,
+        loader: "shebang-loader"
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -42,7 +47,12 @@ module.exports = {
       }
     ]
   },
-  plugins: [htmlPlugin],
+  plugins: [
+    htmlPlugin,
+    new webpack.DefinePlugin({
+      "process.env.FLUENTFFMPEG_COV": false
+    })
+  ],
   resolve: {
     extensions: ["*", ".js", ".jsx"]
   },
@@ -53,5 +63,6 @@ module.exports = {
   },
   devServer: {
     contentBase: "./dist"
-  }
+  },
+  node: { fs: "empty", child_process: "empty" }
 };
