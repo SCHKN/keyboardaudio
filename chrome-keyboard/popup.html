@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audio Keyboard Visualizer</title>
+    <link href="/vendors/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendors/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+    <link href="/assets/css/popup.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-light bg-light centered-nav">
+      <a class="navbar-brand" href="#">
+        <img src="/assets/icons/keyboard.svg" width="30" height="30" alt="" style="margin-right: 5px;" />
+        Keyboard Visualizer  
+      </a>
+    </nav>
+    <canvas
+      class="bar-visualizer"
+      id="bar-canvas"
+      width="300"
+      height="100"
+    ></canvas>
+    <nav class="navbar navbar-light bg-light centered-nav">
+      Razer API
+    </nav>
+    <nav class="navbar navbar-light bg-light centered-nav">
+      Commands
+    </nav>
+    <div
+      class="btn-toolbar"
+      role="toolbar"
+      aria-label="Toolbar with button groups"
+    >
+      <div class="btn-group mr-2 commands" role="group" aria-label="First group">
+        <button type="button" class="btn btn-primary" id="play">Play</button>
+        <button type="button" class="btn btn-danger" id="stop">Stop</button>
+      </div>
+    </div>
+  </body>
+  <script src="/vendors/js/jquery-3.3.1.min.js"></script>
+  <script src="/vendors/js/bootstrap.min.js"></script>
+  <script src="/vendors/js/bootstrap-colorpicker.min.js"></script>
+  <script src="popup.js"></script>
+</html>

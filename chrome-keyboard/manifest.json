@@ -1,0 +1,18 @@
+{
+  "name": "Chrome Keyboard Visualizer",
+  "version": "1.0",
+  "description": "An Audio Keyboard Visualizer for Razer merch.",
+  "permissions": ["storage", "activeTab", "tabCapture"],
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": "logo.jpg"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

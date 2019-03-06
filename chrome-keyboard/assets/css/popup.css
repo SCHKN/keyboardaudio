@@ -1,0 +1,16 @@
+body {
+  min-width: 300px;
+}
+
+.centered-nav,
+.commands {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.commands {
+  width: 100%;
+  margin-right: 0 !important;
+  padding: 5px;
+}
