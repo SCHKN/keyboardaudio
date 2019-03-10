@@ -1,14 +1,11 @@
 $(document).ready(() => {
   // State of the application.
   var appState;
-
-  //console.log(hslToDecimal(60 / 360, 1, 0.5));
+  var themeId = 0;
 
   // Frequency Canvas
   var frequencyCanvas = document.querySelector(".bar-visualizer");
   var frequencyCanvasContext = frequencyCanvas.getContext("2d");
-
-  var strikeColor = "#00e53c";
 
   // Building the canvas.
   frequencyCanvasContext.clearRect(
@@ -29,15 +26,28 @@ $(document).ready(() => {
 
   function getAppState() {
     chrome.storage.sync.get(["appState"], function(result) {
-      if (result.appState && result.appState.isActive) {
-        // If the app is already active, disable the controls.
-        $("#play").prop("disabled", true);
-        $("#stop").prop("disabled", false);
-      } else {
-        $("#play").prop("disabled", false);
-        $("#stop").prop("disabled", true);
-      }
+      setControls(result.appState);
+      setTheme(result.appState);
     });
+  }
+
+  // Function that enables or disable controls depending on the app state.
+  function setControls(appState) {
+    if (appState && appState.isActive) {
+      // If the app is already active, disable the controls.
+      $("#play").prop("disabled", true);
+      $("#stop").prop("disabled", false);
+    } else {
+      $("#play").prop("disabled", false);
+      $("#stop").prop("disabled", true);
+    }
+  }
+
+  function setTheme(appState) {
+    console.log(appState);
+    if (appState && appState.themeId) {
+      themeId = appState.themeId;
+    }
   }
 
   // Handler for the play button.
@@ -72,6 +82,25 @@ $(document).ready(() => {
     );
   });
 
+  // Handler when clicking on a theme.
+  $(".theme").click(function(e) {
+    chrome.runtime.sendMessage(
+      {
+        origin: "content",
+        instruction: "change-theme",
+        themeId: e.target.id
+      },
+      function(response) {
+        themeId = response.themeId;
+      }
+    );
+
+    $(".current-theme").remove();
+
+    // Adding a current block to the theme.
+    $(this).append('<div class="current-theme"> Current </div>');
+  });
+
   // Function that draws the canvas to the popup.
   chrome.runtime.onMessage.addListener(function(request, sender) {
     var numberOfBars = request.numberOfBars;
@@ -92,7 +121,7 @@ $(document).ready(() => {
     for (var i = 0; i < numberOfBars; i++) {
       barHeight = frequencyArray[i];
 
-      frequencyCanvasContext.fillStyle = `hsl(${0 +
+      frequencyCanvasContext.fillStyle = `hsl(${themeId * 60 +
         (60 * (i + 1)) / numberOfBars}, 100%, 50%)`;
       frequencyCanvasContext.fillRect(
         x,

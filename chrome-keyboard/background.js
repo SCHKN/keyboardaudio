@@ -15,7 +15,7 @@ var connection;
 
 // App parameters
 var color = 16514045;
-color = 166151;
+var themeId = 0;
 // Google Chrome variables
 var stream;
 var tab;
@@ -28,6 +28,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     case "content":
       onMessageFromContent(request, sendResponse);
       break;
+    case "change-theme":
+      onMessageFromContent(request, sendResponse);
     default:
       throw "Every message is supposed to have an origin";
   }
@@ -48,9 +50,21 @@ function onMessageFromContent(request, sendResponse) {
     case "stop":
       stop(sendResponse);
       break;
+    case "change-theme":
+      changeTheme(request, sendResponse);
+      break;
     default:
       throw "The instruction provided is not implemented yet.";
   }
+}
+
+function changeTheme(request, sendResponse) {
+  this.themeId = request.themeId;
+
+  // Setting the theme in the app state.
+  chrome.storage.sync.set({ appState: { themeId: request.themeId } });
+
+  sendResponse({ themeId: request.themeId });
 }
 
 function start(sendResponse) {
@@ -213,7 +227,7 @@ function sendToKeyboard() {
       for (let k = 0; k < keyboardWidth; k++) {
         if (k < elementStrength) {
           keyboardArray[keyboardWidth - k - 1][index] = hslToDecimal(
-            (300 + k * 20) / 360,
+            (60 * themeId + k * 20) / 360,
             1,
             0.5
           );
