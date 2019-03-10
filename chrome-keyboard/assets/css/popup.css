@@ -1,5 +1,6 @@
 body {
   min-width: 300px;
+  font-family: "Montserrat", sans-serif;
 }
 
 .centered-nav,
@@ -13,4 +14,33 @@ body {
   width: 100%;
   margin-right: 0 !important;
   padding: 5px;
+}
+
+/* Themes */
+
+.theme-row {
+  display: flex;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+.theme-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.theme-container:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+.theme {
+  border: 2px solid #a7a7a7;
+  border-radius: 5px;
+  width: 80px;
+  height: 25px;
 }

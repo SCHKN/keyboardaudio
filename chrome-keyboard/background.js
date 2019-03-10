@@ -10,24 +10,29 @@ var frequencyStep;
 
 // URL given by the Chroma SDK.
 var chromaSDKUrl;
+// The recurring connection made to maintain the SDK open.
+var connection;
 
 // App parameters
 var color = 16514045;
-
-// Google Chrome stream
+color = 166151;
+// Google Chrome variables
 var stream;
+var tab;
 
-chrome.runtime.onMessage.addListener(function(request, sender) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   switch (request.origin) {
     case "options":
       onMessageFromOptions(request);
       break;
     case "content":
-      onMessageFromContent(request);
+      onMessageFromContent(request, sendResponse);
       break;
     default:
       throw "Every message is supposed to have an origin";
   }
+
+  return true;
 });
 
 // Use a case when it feels needed.
@@ -35,17 +40,28 @@ function onMessageFromOptions(request) {
   color = request.color;
 }
 
-function onMessageFromContent(request) {
+function onMessageFromContent(request, sendResponse) {
   switch (request.instruction) {
     case "start":
-      start();
+      start(sendResponse);
       break;
     case "stop":
-      stop();
+      stop(sendResponse);
       break;
     default:
       throw "The instruction provided is not implemented yet.";
   }
+}
+
+function start(sendResponse) {
+  createRazerConnection().then(function(razerSuccess) {
+    createAudioConnection().then(function(audioSuccess) {
+      sendResponse({ active: true });
+
+      // Setting the app state.
+      chrome.storage.sync.set({ appState: { isActive: true } });
+    });
+  });
 }
 
 // Array of variable width instead of fftSize / 2
@@ -67,41 +83,48 @@ function meanFrequencyArray() {
   resampledFrequencyArray = resampledFrequencyBuffer;
 }
 
-// On runtime, instantiate the Chroma SDK connection.
-chrome.runtime.onInstalled.addListener(function() {
-  const request = new XMLHttpRequest();
-  request.open("POST", `http://localhost:54235/razer/chromasdk/`, true);
-  request.setRequestHeader("Content-type", "application/json");
-  request.onload = function() {
-    chromaSDKUrl = JSON.parse(request.response).uri;
-    // If the connection was successful, maintain the connection over time.
-    if (chromaSDKUrl) {
-      maintainConnection(chromaSDKUrl);
+// Function that requests a new connection endpoint to the Razer API.
+function createRazerConnection() {
+  return new Promise(function(resolve, reject) {
+    try {
+      const request = new XMLHttpRequest();
+      request.open("POST", `http://localhost:54235/razer/chromasdk/`, true);
+      request.setRequestHeader("Content-type", "application/json");
+      request.onload = function() {
+        chromaSDKUrl = JSON.parse(request.response).uri;
+        // If the connection was successful, maintain the connection over time.
+        if (chromaSDKUrl) {
+          maintainConnection(chromaSDKUrl);
+          resolve();
+        }
+      };
+      request.send(
+        JSON.stringify({
+          title: "Razer Chroma SDK RESTful Test Application",
+          description: "This is a REST interface test application",
+          author: {
+            name: "Chroma Developer",
+            contact: "www.razerzone.com"
+          },
+          device_supported: [
+            "keyboard",
+            "mouse",
+            "headset",
+            "mousepad",
+            "keypad",
+            "chromalink"
+          ],
+          category: "application"
+        })
+      );
+    } catch (err) {
+      reject(err);
     }
-  };
-  request.send(
-    JSON.stringify({
-      title: "Razer Chroma SDK RESTful Test Application",
-      description: "This is a REST interface test application",
-      author: {
-        name: "Chroma Developer",
-        contact: "www.razerzone.com"
-      },
-      device_supported: [
-        "keyboard",
-        "mouse",
-        "headset",
-        "mousepad",
-        "keypad",
-        "chromalink"
-      ],
-      category: "application"
-    })
-  );
-});
+  });
+}
 
 function maintainConnection(sessionUrl) {
-  setInterval(() => {
+  connection = setInterval(() => {
     const request = new XMLHttpRequest();
     request.open("PUT", `${sessionUrl}/heartbeat`, true);
     request.onload = function() {
@@ -112,40 +135,58 @@ function maintainConnection(sessionUrl) {
 }
 
 // Capture the audio stream, record the frequency spectrum and distribute it to the hardware.
-function start() {
-  // Capturing the audio stream.
-  chrome.tabCapture.capture({ audio: true }, stream => {
-    this.stream = stream;
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+function createAudioConnection() {
+  return new Promise(function(resolve, reject) {
+    // Capturing the audio stream.
+    chrome.tabs.getSelected(null, function(tab) {
+      this.tab = tab;
+      chrome.tabCapture.capture({ audio: true }, stream => {
+        this.stream = stream;
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 8192;
-    frequencyBufferLength = analyser.frequencyBinCount;
-    frequencyStep = Math.floor(frequencyBufferLength / numberOfBars);
-    frequencyDataArray = new Uint8Array(frequencyBufferLength);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 8192;
+        frequencyBufferLength = analyser.frequencyBinCount;
+        frequencyStep = Math.floor(frequencyBufferLength / numberOfBars);
+        frequencyDataArray = new Uint8Array(frequencyBufferLength);
 
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
 
-    window.setInterval(function() {
-      meanFrequencyArray();
-      // For frequency spectrum display on the popup.
-      sendToPopup();
-      sendToKeyboard();
-    }, 5);
+        window.setInterval(function() {
+          meanFrequencyArray();
+          // For frequency spectrum display on the popup.
+          sendToPopup();
+          sendToKeyboard();
+        }, 5);
+        resolve();
+      });
+    });
   });
 }
 
 // Disconnecting all sources and closing the audio context.
-function stop() {
+function stop(sendResponse) {
   analyser.disconnect();
   source.disconnect();
 
   audioContext.close().then(function() {
-    stream.getAudioTracks()[0].stop();
+    if (stream && stream.getAudioTracks()[0]) {
+      stream.getAudioTracks()[0].stop();
+    }
   });
+
+  // Stopping the SDK connection.
+  clearInterval(connection);
+
+  // Setting the app state.
+  chrome.storage.sync.set({ appState: { isActive: false } });
+
+  if (sendResponse) {
+    sendResponse({ active: false });
+  }
 }
 
 // Keyboard input parameters
@@ -171,7 +212,11 @@ function sendToKeyboard() {
     for (let j = 0; j < keyboardArray.length; j++) {
       for (let k = 0; k < keyboardWidth; k++) {
         if (k < elementStrength) {
-          keyboardArray[keyboardWidth - k - 1][index] = color;
+          keyboardArray[keyboardWidth - k - 1][index] = hslToDecimal(
+            (300 + k * 20) / 360,
+            1,
+            0.5
+          );
         } else {
           keyboardArray[keyboardWidth - k - 1][index] = 0;
         }
@@ -200,4 +245,41 @@ function sendToPopup() {
     numberOfBars,
     frequencyArray: resampledFrequencyArray
   });
+}
+
+// When closing the tab or closing Chrome, everything should stop.
+chrome.tabs.onRemoved.addListener(function(tabid, removed) {
+  // Stopping every audio stream and closing the SDK connection.
+  if (tab && tabid === tab.id) {
+    stop();
+  }
+});
+
+function hslToDecimal(h, s, l) {
+  var r, g, b;
+
+  if (s == 0) {
+    r = g = b = l; // achromatic
+  } else {
+    var hue2rgb = function hue2rgb(p, q, t) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return parseInt(
+    (parseInt(Math.round(b * 255)) << 16) +
+      (parseInt(Math.round(g * 255)) << 8) +
+      parseInt(Math.round(r * 255))
+  );
 }

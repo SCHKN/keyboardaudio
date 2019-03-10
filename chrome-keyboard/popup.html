@@ -5,13 +5,23 @@
     <link href="/vendors/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/vendors/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
     <link href="/assets/css/popup.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
     <nav class="navbar navbar-light bg-light centered-nav">
       <a class="navbar-brand" href="#">
-        <img src="/assets/icons/keyboard.svg" width="30" height="30" alt="" style="margin-right: 5px;" />
-        Keyboard Visualizer  
+        <img
+          src="/assets/icons/keyboard.svg"
+          width="30"
+          height="30"
+          alt=""
+          style="margin-right: 5px;"
+        />
+        Keyboard Visualizer
       </a>
     </nav>
     <canvas
@@ -21,8 +31,61 @@
       height="100"
     ></canvas>
     <nav class="navbar navbar-light bg-light centered-nav">
-      Razer API
+      Themes
     </nav>
+    <div class="theme-row">
+      <div class="theme-container">
+        Fire
+        <div
+          class="theme"
+          style="background: rgb(253,29,29);
+      background: linear-gradient(90deg, rgba(253,29,29,1) 0%, rgba(252,250,69,1) 100%);"
+        ></div>
+      </div>
+      <div class="theme-container">
+        Nature
+        <div
+          class="theme"
+          style="background: rgb(253,243,29);
+          background: linear-gradient(90deg, rgba(253,243,29,1) 0%, rgba(88,252,69,1) 100%);"
+        ></div>
+      </div>
+      <div class="theme-container">
+        Aqua
+        <div
+          class="theme"
+          style="background: rgb(71,253,29);
+          background: linear-gradient(90deg, rgba(71,253,29,1) 0%, rgba(69,252,250,1) 100%);"
+        ></div>
+      </div>
+    </div>
+    <!-- Second Row -->
+    <div class="theme-row">
+      <div class="theme-container">
+        Space
+        <div
+          class="theme"
+          style="background: rgb(29,253,251);
+          background: linear-gradient(90deg, rgba(29,253,251,1) 0%, rgba(81,69,252,1) 100%);"
+        ></div>
+      </div>
+      <div class="theme-container">
+        2000's
+        <div
+          class="theme"
+          style="background: rgb(55,29,253);
+          background: linear-gradient(90deg, rgba(55,29,253,1) 0%, rgba(252,69,239,1) 100%);"
+        ></div>
+      </div>
+      <div class="theme-container">
+        Passion
+        <div
+          class="theme"
+          style="background: rgb(253,29,225);
+          background: linear-gradient(90deg, rgba(253,29,225,1) 0%, rgba(252,69,69,1) 100%);"
+        ></div>
+      </div>
+    </div>
     <nav class="navbar navbar-light bg-light centered-nav">
       Commands
     </nav>
@@ -31,7 +94,11 @@
       role="toolbar"
       aria-label="Toolbar with button groups"
     >
-      <div class="btn-group mr-2 commands" role="group" aria-label="First group">
+      <div
+        class="btn-group mr-2 commands"
+        role="group"
+        aria-label="First group"
+      >
         <button type="button" class="btn btn-primary" id="play">Play</button>
         <button type="button" class="btn btn-danger" id="stop">Stop</button>
       </div>
