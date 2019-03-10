@@ -8,8 +8,17 @@
     "scripts": ["background.js"]
   },
   "browser_action": {
-    "default_popup": "popup.html",
-    "default_icon": "logo.jpg"
+    "default_icon": {
+      "16": "assets/icons/keyboard-16.png",
+      "24": "assets/icons/keyboard-24.png",
+      "32": "assets/icons/keyboard-32.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "assets/icons/keyboard-16.png",
+    "48": "assets/icons/keyboard-32.png",
+    "128": "assets/icons/keyboard-128.png"
   },
   "options_ui": {
     "page": "options.html",

@@ -58,3 +58,13 @@ body {
   bottom: -10px;
   right: 20px;
 }
+
+/* Credits */
+
+.credits {
+  font-size: 12px;
+}
+
+.schkn {
+  font-weight: bold;
+}

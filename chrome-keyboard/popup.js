@@ -29,6 +29,11 @@ $(document).ready(() => {
       setControls(result.appState);
       setTheme(result.appState);
     });
+
+    chrome.storage.sync.get(["themeState"], function(result) {
+      setTheme(result.themeState);
+      setCurrentTag(themeId);
+    });
   }
 
   // Function that enables or disable controls depending on the app state.
@@ -43,11 +48,19 @@ $(document).ready(() => {
     }
   }
 
-  function setTheme(appState) {
-    console.log(appState);
-    if (appState && appState.themeId) {
-      themeId = appState.themeId;
+  function setTheme(themeState) {
+    if (themeState && themeState.themeId) {
+      themeId = themeState.themeId;
+    } else {
+      themeId = 0;
     }
+  }
+
+  function setCurrentTag(themeId) {
+  
+    $(".current-theme").remove();
+    $(`#${themeId}`).append('<div class="current-theme"> Current </div>');
+  
   }
 
   // Handler for the play button.

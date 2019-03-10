@@ -62,7 +62,7 @@ function changeTheme(request, sendResponse) {
   this.themeId = request.themeId;
 
   // Setting the theme in the app state.
-  chrome.storage.sync.set({ appState: { themeId: request.themeId } });
+  chrome.storage.sync.set({ themeState: { themeId: request.themeId } });
 
   sendResponse({ themeId: request.themeId });
 }
