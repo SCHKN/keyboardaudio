@@ -10,8 +10,12 @@ var frequencyStep;
 
 // URL given by the Chroma SDK.
 var chromaSDKUrl;
+
 // The recurring connection made to maintain the SDK open.
 var connection;
+// The audio connection made to display on the popup
+var audioConnection;
+var keyboardConnection;
 
 // App parameters
 var color = 16514045;
@@ -68,12 +72,20 @@ function changeTheme(request, sendResponse) {
 }
 
 function start(sendResponse) {
-  createRazerConnection().then(function(razerSuccess) {
-    createAudioConnection().then(function(audioSuccess) {
-      sendResponse({ active: true });
+  createAudioConnection().then(function(audioSuccess) {
+    // Setting the app state.
+    sendResponse({ active: true });
+    chrome.storage.sync.set({ appState: { isActive: true } });
+    audioConnection = setInterval(function() {
+      meanFrequencyArray();
+      // For frequency spectrum display on the popup.
+      sendToPopup();
+    }, 5);
 
-      // Setting the app state.
-      chrome.storage.sync.set({ appState: { isActive: true } });
+    createRazerConnection().then(function(razerSuccess) {
+      keyboardConnection = setInterval(function() {
+        sendToKeyboard();
+      }, 5);
     });
   });
 }
@@ -169,12 +181,12 @@ function createAudioConnection() {
         source.connect(analyser);
         analyser.connect(audioContext.destination);
 
-        window.setInterval(function() {
-          meanFrequencyArray();
-          // For frequency spectrum display on the popup.
-          sendToPopup();
-          sendToKeyboard();
-        }, 5);
+        // window.setInterval(function() {
+        //   meanFrequencyArray();
+        //   // For frequency spectrum display on the popup.
+        //   sendToPopup();
+        //   sendToKeyboard();
+        // }, 5);
         resolve();
       });
     });
@@ -194,6 +206,8 @@ function stop(sendResponse) {
 
   // Stopping the SDK connection.
   clearInterval(connection);
+  clearInterval(audioConnection);
+  clearInterval(keyboardConnection);
 
   // Setting the app state.
   chrome.storage.sync.set({ appState: { isActive: false } });
