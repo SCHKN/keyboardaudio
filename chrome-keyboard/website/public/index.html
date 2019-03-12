@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audio Keyboard Visualizer</title>
+    <link href="./vendors/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./vendors/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+    <link href="./assets/css/style.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="extension-container">
+      <div class="source">
+        <div class="header">
+          <div class="header-button" style="background: #2ecc71"></div>
+          <div class="header-button" style="background: #f1c40f"></div>
+          <div class="header-button" style="background: #c0392b"></div>
+        </div>
+        <iframe
+          width="560"
+          height="315"
+          src="https://www.youtube.com/embed/Hg3G1E2tNCA"
+          frameborder="0"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+        >
+        </iframe>
+      </div>
+      <div class="extension">
+        <nav class="navbar navbar-light bg-light centered-nav">
+          <a class="navbar-brand" href="#">
+            <img
+              src="./assets/icons/keyboard.svg"
+              width="30"
+              height="30"
+              alt=""
+              style="margin-right: 5px;"
+            />
+            Keyboard Visualizer
+          </a>
+        </nav>
+        <canvas
+          class="bar-visualizer"
+          id="bar-canvas"
+          width="300"
+          height="100"
+        ></canvas>
+        <nav class="navbar navbar-light bg-light centered-nav">
+          Themes
+        </nav>
+        <div class="theme-row">
+          <div class="theme-container">
+            Fire
+            <div
+              class="theme"
+              id="0"
+              style="background: rgb(253,29,29);
+      background: linear-gradient(90deg, rgba(253,29,29,1) 0%, rgba(252,250,69,1) 100%);"
+            ></div>
+          </div>
+          <div class="theme-container">
+            Nature
+            <div
+              class="theme"
+              id="1"
+              style="background: rgb(253,243,29);
+          background: linear-gradient(90deg, rgba(253,243,29,1) 0%, rgba(88,252,69,1) 100%);"
+            ></div>
+          </div>
+          <div class="theme-container">
+            Aqua
+            <div
+              class="theme"
+              id="2"
+              style="background: rgb(71,253,29);
+          background: linear-gradient(90deg, rgba(71,253,29,1) 0%, rgba(69,252,250,1) 100%);"
+            ></div>
+          </div>
+        </div>
+        <!-- Second Row -->
+        <div class="theme-row">
+          <div class="theme-container">
+            Space
+            <div
+              class="theme"
+              id="3"
+              style="background: rgb(29,253,251);
+          background: linear-gradient(90deg, rgba(29,253,251,1) 0%, rgba(81,69,252,1) 100%);"
+            ></div>
+          </div>
+          <div class="theme-container">
+            2000's
+            <div
+              class="theme"
+              id="4"
+              style="background: rgb(55,29,253);
+          background: linear-gradient(90deg, rgba(55,29,253,1) 0%, rgba(252,69,239,1) 100%);"
+            ></div>
+          </div>
+          <div class="theme-container">
+            Passion
+            <div
+              class="theme"
+              id="5"
+              style="background: rgb(253,29,225);
+          background: linear-gradient(90deg, rgba(253,29,225,1) 0%, rgba(252,69,69,1) 100%);"
+            ></div>
+          </div>
+        </div>
+        <nav class="navbar navbar-light bg-light centered-nav">
+          Commands
+        </nav>
+        <div
+          class="btn-toolbar"
+          role="toolbar"
+          aria-label="Toolbar with button groups"
+        >
+          <div
+            class="btn-group mr-2 commands"
+            role="group"
+            aria-label="First group"
+          >
+            <button type="button" class="btn btn-primary" id="play">
+              Play
+            </button>
+            <button type="button" class="btn btn-danger" id="stop">Stop</button>
+          </div>
+        </div>
+        <nav class="navbar navbar-light bg-light centered-nav">
+          Credits
+        </nav>
+        <div class="credits">
+          <img
+            src="./assets/icons/chrome.png"
+            width="30"
+            height="30"
+            alt=""
+            style="margin-right: 5px;"
+          />
+          Chrome Extension by
+          <a class="schkn" href="http://www.github.com/SCHKN" target="_blank"
+            >SCHKN</a
+          >
+        </div>
+      </div>
+    </div>
+    <h1 style="margin-top: 80px;">Keyboard Audio Visualizer (𝛼)</h1>
+    <h3>Powered By Razer Chroma Keyboards</h3>
+    <h5>
+      The Razer Keyboard Audio Visualizer is a project that aims at providing
+      real-time audio lightnings effects for Razer Chroma keyboards owners.
+    </h5>
+    <div class="chrome">
+      <img width="50" height="50" src="./assets/icons/chrome.png" />
+      Download For Google Chrome
+    </div>
+  </body>
+  <script src="./vendors/js/jquery-3.3.1.min.js"></script>
+  <script src="./vendors/js/bootstrap.min.js"></script>
+  <script src="./vendors/js/bootstrap-colorpicker.min.js"></script>
+  <script src="./assets/js/script.js"></script>
+</html>
