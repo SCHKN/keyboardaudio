@@ -4,6 +4,12 @@
     <title>Audio Keyboard Visualizer</title>
     <link href="./vendors/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./vendors/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+      integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+      crossorigin="anonymous"
+    />
     <link href="./assets/css/style.css" rel="stylesheet" />
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat"
@@ -19,16 +25,53 @@
           <div class="header-button" style="background: #f1c40f"></div>
           <div class="header-button" style="background: #c0392b"></div>
         </div>
-        <iframe
-          width="560"
-          height="315"
-          src="https://www.youtube.com/embed/Hg3G1E2tNCA"
-          frameborder="0"
-          allow="autoplay; encrypted-media"
-          allowfullscreen
-        >
-        </iframe>
+        <div class="hero-form-body">
+          <div>
+            <div class="line-container">
+              <p class="console-output second-line">
+                <i class="fas fa-terminal"></i> Plug your Razer Chroma Keyboard
+                device
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="line-container">
+              <p class="console-output third-line">
+                <i class="fas fa-terminal"></i> Make sure Razer Synapse is
+                launched
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="line-container">
+              <p class="console-output fourth-line">
+                <i class="fas fa-terminal"></i> Click on Play
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="line-container">
+              <p class="console-output fifth-line">
+                <i class="fas fa-terminal"></i> Have fun!
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="line-container">
+              <p class="console-input sixth-line">
+                <i class="fas fa-terminal"></i> Music Credits : Sub Focus - Rock It
+              </p>
+            </div>
+          </div>
+        </div>
+        <canvas
+          class="wave-visualizer"
+          id="wave-canvas"
+          width="600"
+          height="150"
+        ></canvas>
       </div>
+
       <div class="extension">
         <nav class="navbar navbar-light bg-light centered-nav">
           <a class="navbar-brand" href="#">
@@ -147,7 +190,7 @@
         </div>
       </div>
     </div>
-    <h1 style="margin-top: 80px;">Keyboard Audio Visualizer (𝛼)</h1>
+    <h1 style="margin-top: 80px;">Keyboard Audio Visualizer</h1>
     <h3>Powered By Razer Chroma Keyboards</h3>
     <h5>
       The Razer Keyboard Audio Visualizer is a project that aims at providing

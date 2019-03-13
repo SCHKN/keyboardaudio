@@ -59,6 +59,16 @@ body {
 
 .source {
   margin-right: 10px;
+  width: 600px;
+  height: 500px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.wave-visualizer {
+  background: #22313f;
 }
 
 .header {
@@ -152,6 +162,92 @@ h6 {
   position: absolute;
   bottom: -10px;
   right: 20px;
+}
+
+/* Console */
+
+.hero-form-body {
+  background-color: #22313f;
+  padding: 20px;
+  flex: 1;
+}
+
+.line-container {
+  display: inline-block;
+}
+
+.console-input,
+.console-output {
+  animation: typing 0.3s steps(35, end) forwards, following-caret 0.3s forwards;
+  overflow: hidden;
+  white-space: nowrap;
+  text-transform: lowercase;
+  font-weight: 400;
+  font-size: 110%;
+  visibility: hidden;
+  border-right: 0.15em solid #fff;
+}
+
+.console-input {
+  color: white;
+}
+
+.first-line {
+  animation-delay: 1s;
+}
+
+.second-line {
+  animation-delay: 2.5s;
+}
+
+.third-line {
+  animation-delay: 4s;
+}
+
+.fourth-line {
+  animation-delay: 5.5s;
+}
+
+.fifth-line {
+  animation-delay: 7s;
+}
+
+
+.sixth-line {
+  animation: typing 0.1s steps(35, end) forwards,
+    blink-caret 0.6s step-end infinite;
+  animation-delay: 8.5s;
+}
+
+.console-output {
+  color: #47E10C;
+}
+
+@keyframes typing {
+  from {
+    width: 0%;
+    visibility: visible;
+  }
+  to {
+    width: 100%;
+    visibility: visible;
+  }
+}
+
+@keyframes following-caret {
+  to {
+    border-color: transparent;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #fff;
+  }
 }
 
 /* Credits */

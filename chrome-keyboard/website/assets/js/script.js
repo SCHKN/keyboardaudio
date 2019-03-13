@@ -1,12 +1,16 @@
 $(document).ready(() => {
   // Variables used by the Web Audio API.
   var analyser;
+  var frequencyAnalyser;
   var source;
-  var dataArray;
   var audioContext;
+
   var frequencyBufferLength;
   var frequencyDataArray;
   var frequencyStep;
+
+  var bufferLength;
+  var dataArray;
 
   // URL given by the Chroma SDK.
   var chromaSDKUrl;
@@ -19,29 +23,42 @@ $(document).ready(() => {
 
   // App parameters
   var color = 16514045;
-  var themeId = 0;
-  // Google Chrome variables
-  var stream;
-  var tab;
+  var themeId = 2;
+
+  // Wave Canvas
+  var canvas = document.querySelector(".wave-visualizer");
+  var canvasCtx = canvas.getContext("2d");
+
+  // Frequency Canvas
+  var frequencyCanvas = document.querySelector(".bar-visualizer");
+  var frequencyCanvasContext = frequencyCanvas.getContext("2d");
+
+  $("#stop").prop("disabled", true);
 
   $("#play").click(function() {
-    
-    audioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
+    $("#play").prop("disabled", true);
+    $("#stop").prop("disabled", false);
 
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Sine wave analyzer
     analyser = audioContext.createAnalyser();
-    analyser.fftSize = 8192;
-    frequencyBufferLength = analyser.frequencyBinCount;
+    analyser.fftSize = 4096;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    // Frequency analyzer
+    frequencyAnalyser = audioContext.createAnalyser();
+    frequencyAnalyser.fftSize = 8192;
+    frequencyBufferLength = frequencyAnalyser.frequencyBinCount;
     frequencyStep = Math.floor(frequencyBufferLength / numberOfBars);
     frequencyDataArray = new Uint8Array(frequencyBufferLength);
 
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
     source = audioContext.createBufferSource();
-    // source.connect(analyser);
-    // analyser.connect(audioContext.destination);
     source.connect(analyser);
-    analyser.connect(audioContext.destination);
-    
+    analyser.connect(frequencyAnalyser);
+    frequencyAnalyser.connect(audioContext.destination);
+
     const request = new XMLHttpRequest();
     request.open("GET", `/music`, true);
     console.log(request);
@@ -52,10 +69,8 @@ $(document).ready(() => {
         function(buffer) {
           source.buffer = buffer;
           source.loop = true;
-
-          // draw();
-          // drawBars();
           source.start();
+          start();
         },
 
         function(e) {
@@ -67,30 +82,87 @@ $(document).ready(() => {
     request.send();
   });
 
-  function changeTheme(request, sendResponse) {
-    this.themeId = request.themeId;
-
-    // Setting the theme in the app state.
-    chrome.storage.sync.set({ themeState: { themeId: request.themeId } });
-
-    sendResponse({ themeId: request.themeId });
-  }
+  // Handler when clicking on a theme.
+  $(".theme").click(function(e) {
+    themeId = e.target.id;
+    $(".current-theme").remove();
+    // Adding a current block to the theme.
+    $(this).append('<div class="current-theme"> Current </div>');
+  });
 
   function start() {
-    createAudioConnection().then(function(audioSuccess) {
-      // Setting the app state.
-      audioConnection = setInterval(function() {
-        meanFrequencyArray();
-        // For frequency spectrum display on the popup.
-        draw();
-      }, 5);
+    // Setting the app state.
+    audioConnection = setInterval(function() {
+      meanFrequencyArray();
+      // For frequency spectrum display on the popup.
+      drawBars();
+      draw();
+    }, 5);
 
-      createRazerConnection().then(function(razerSuccess) {
-        keyboardConnection = setInterval(function() {
-          sendToKeyboard();
-        }, 5);
-      });
+    createRazerConnection().then(function(razerSuccess) {
+      keyboardConnection = setInterval(function() {
+        sendToKeyboard();
+      }, 5);
     });
+  }
+
+  function draw() {
+    analyser.getByteTimeDomainData(dataArray);
+
+    canvasCtx.fillStyle = "#22313f";
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+    canvasCtx.lineWidth = 2;
+    canvasCtx.strokeStyle = `hsl(${themeId * 60}, 100%, 50%)`;
+
+    canvasCtx.beginPath();
+
+    var sliceWidth = (canvas.width * 1.0) / bufferLength;
+    var x = 0;
+
+    for (var i = 0; i < bufferLength; i++) {
+      var v = dataArray[i] / 128.0;
+      var y = (v * canvas.height) / 2;
+
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
+
+      x += sliceWidth;
+    }
+
+    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+    canvasCtx.stroke();
+  }
+
+  function drawBars() {
+    frequencyCanvasContext.fillStyle = "#ecf0f1";
+    frequencyCanvasContext.fillRect(
+      0,
+      0,
+      frequencyCanvas.width,
+      frequencyCanvas.height
+    );
+
+    var barWidth = frequencyCanvas.width / numberOfBars;
+    var barHeight;
+    var x = 0;
+
+    for (var i = 0; i < numberOfBars; i++) {
+      barHeight = resampledFrequencyArray[i];
+
+      frequencyCanvasContext.fillStyle = `hsl(${themeId * 60 +
+        (60 * (i + 1)) / numberOfBars}, 100%, 50%)`;
+      frequencyCanvasContext.fillRect(
+        x,
+        frequencyCanvas.height,
+        barWidth,
+        (-1 * barHeight) / 2
+      );
+      x += barWidth + 5;
+    }
   }
 
   // Array of variable width instead of fftSize / 2
@@ -100,7 +172,7 @@ $(document).ready(() => {
 
   function meanFrequencyArray() {
     // Taking the data from the frequency analyser.
-    analyser.getByteFrequencyData(frequencyDataArray);
+    frequencyAnalyser.getByteFrequencyData(frequencyDataArray);
     for (var j = 0; j < numberOfBars; j++) {
       var localMean = 0;
       for (var i = j * frequencyStep; i < frequencyStep * (j + 1); i++) {
@@ -163,49 +235,28 @@ $(document).ready(() => {
     }, 2000);
   }
 
-  // Capture the audio stream, record the frequency spectrum and distribute it to the hardware.
-  function createAudioConnection() {
-    return new Promise(function(resolve, reject) {
-      // Capturing the audio stream.
-      chrome.tabs.getSelected(null, function(tab) {
-        this.tab = tab;
-        chrome.tabCapture.capture({ audio: true }, stream => {
-          this.stream = stream;
-          audioContext = new (window.AudioContext ||
-            window.webkitAudioContext)();
-
-          analyser = audioContext.createAnalyser();
-          analyser.fftSize = 8192;
-          frequencyBufferLength = analyser.frequencyBinCount;
-          frequencyStep = Math.floor(frequencyBufferLength / numberOfBars);
-          frequencyDataArray = new Uint8Array(frequencyBufferLength);
-
-          dataArray = new Uint8Array(analyser.frequencyBinCount);
-          source = audioContext.createMediaStreamSource(stream);
-          source.connect(analyser);
-          analyser.connect(audioContext.destination);
-          resolve();
-        });
-      });
-    });
-  }
-
   // Disconnecting all sources and closing the audio context.
-  function stop() {
-    analyser.disconnect();
+  $("#stop").click(function() {
+    $("#stop").prop("disabled", true);
+    $("#play").prop("disabled", false);
+
+    frequencyAnalyser.disconnect();
     source.disconnect();
 
-    audioContext.close().then(function() {
-      if (stream && stream.getAudioTracks()[0]) {
-        stream.getAudioTracks()[0].stop();
-      }
-    });
+    audioContext.close();
 
     // Stopping the SDK connection.
     clearInterval(connection);
     clearInterval(audioConnection);
     clearInterval(keyboardConnection);
-  }
+    // Cleaning the canvas.
+    frequencyCanvasContext.clearRect(
+      0,
+      0,
+      frequencyCanvas.width,
+      frequencyCanvas.height
+    );
+  });
 
   // Keyboard input parameters
   var keyboardLength = 22;

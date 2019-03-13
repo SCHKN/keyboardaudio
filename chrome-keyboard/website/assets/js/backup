@@ -1,0 +1,90 @@
+$(document).ready(() => {
+  
+    // Variables used by the Web Audio API.
+  var analyser;
+  var source;
+  var dataArray;
+  var audioContext;
+  var frequencyBufferLength;
+  var frequencyDataArray;
+  var frequencyStep;
+
+  // URL given by the Chroma SDK.
+  var chromaSDKUrl;
+
+  // The recurring connection made to maintain the SDK open.
+  var connection;
+  // The audio connection made to display on the popup
+  var audioConnection;
+  var keyboardConnection;
+
+  // App parameters
+  var color = 16514045;
+  var themeId = 0;
+  // Google Chrome variables
+  var stream;
+  var tab;
+  // Frequency Canvas
+  var frequencyCanvas = document.querySelector(".bar-visualizer");
+  var frequencyCanvasContext = frequencyCanvas.getContext("2d");
+
+  // Building the canvas.
+  frequencyCanvasContext.clearRect(
+    0,
+    0,
+    frequencyCanvas.width,
+    frequencyCanvas.height
+  );
+
+  // Disabling the stop button
+  $("#stop").prop("disabled", true);
+
+  // Handler for the play button.
+  $("#play").click(function(e) {
+    $("#play").prop("disabled", true);
+    $("#stop").prop("disabled", false);
+    start();
+  });
+
+  // Handler for the stop button.
+  $("#stop").click(function(e) {
+    $("#play").prop("disabled", false);
+    $("#stop").prop("disabled", true);
+  });
+
+  function start() {
+    createAudioConnection().then(function(audioSuccess) {
+      // Setting the app state.
+      audioConnection = setInterval(function() {
+        meanFrequencyArray();
+        // For frequency spectrum display on the popup.
+        draw();
+      }, 5);
+
+      createRazerConnection().then(function(razerSuccess) {
+        keyboardConnection = setInterval(function() {
+          sendToKeyboard();
+        }, 5);
+      });
+    });
+  }
+
+  // Array of variable width instead of fftSize / 2
+  var numberOfBars = 44;
+  var resampledFrequencyBuffer = new Uint8Array(numberOfBars);
+  var resampledFrequencyArray = new Uint8Array(numberOfBars);
+
+  function meanFrequencyArray() {
+    // Taking the data from the frequency analyser.
+    analyser.getByteFrequencyData(frequencyDataArray);
+    for (var j = 0; j < numberOfBars; j++) {
+      var localMean = 0;
+      for (var i = j * frequencyStep; i < frequencyStep * (j + 1); i++) {
+        localMean += frequencyDataArray[i] / frequencyStep;
+      }
+      resampledFrequencyBuffer[j] = localMean;
+    }
+
+    resampledFrequencyArray = resampledFrequencyBuffer;
+  }
+});
